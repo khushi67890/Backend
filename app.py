@@ -50,7 +50,7 @@ def data():
             dataJson.append(dataDict)
         return jsonify(dataJson)
 
-@app.route('/users/<id>', methods=['GET','PUT','DELETE'])
+@app.route('/users/<string:id>', methods=['GET','PUT','DELETE'])
 def onedata(id):
     if request.method == 'GET':
         data= db['users'].find_one({"_id":ObjectId(id)})
@@ -67,8 +67,28 @@ def onedata(id):
         }
 
         return jsonify(dataDict)
+    if request.method == 'DELETE':
+        db['users'].delete_many({"_id":ObjectId(id)})
+        return jsonify({
+            "status":"Data id:"+id+"is deleted"
+        })
+    if request.method =='PUT':
+        body=request.json
+        firstName=body['firstName']
+        lastName=body['lastName']
+        emailId=body['emailId']
+
+        db['users'].update_one({
+            "_id":ObjectId(id),}
+            {
+                "$set":{
+                    "firstName":firstName,
+                    "lastName":lastName,
+                    "emailId":emailId
+                }
+            })
 
 
-if __name__  == '_main_':
+if __name__  == '__main__':
     app.debug = True
     app.run(port=8080)
